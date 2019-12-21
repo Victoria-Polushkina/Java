@@ -1,0 +1,86 @@
+﻿package com.company;
+import java.util.Random;
+
+public class Main {
+
+    public static class BUF {
+        protected int[] buf; //буфер
+        protected int count; //количество элементов в буфере
+
+        public BUF() {  //конструктор объекта
+            buf = new int[8]; //создаём буфер на 8 элементов
+            count = 0;
+        }
+
+        public void fifo(int x) {
+            if (count < 8) { //если буфер ещё не заполнен, то
+                buf[count] = x; //помещаем элемент в буфер
+                count++; //подсчитываем количество помещенных элементов
+            } else {
+                for (int i = 0; i < count - 1; i++)
+                    buf[i] = buf[i + 1]; //смещаем элементы буфера влево
+            }
+            buf[count - 1] = x; //добавляем элемент в конец буфера
+        }
+
+        public void print() {
+            System.out.print("[");
+            for (int i = 0; i < count - 1; i++)
+                System.out.print(String.valueOf(buf[i]) + ",");
+            System.out.print(String.valueOf(buf[count - 1]) + "] -> ");
+        }
+    }
+
+    public static class sBUF extends BUF {
+        sBUF(BUF x) { //конструктор копирования
+            super(); //вызываем конструктор базового класса
+            count = x.count;
+            for (int i = 0; i < x.count; i++)
+                buf[i] = x.buf[i]; //копируем элементы основного буфера
+
+            //сортируем элементы буфера
+            for (int i = 0; i < count - 1; i++)
+                for (int j = i + 1; j < count; j++)
+                    if (buf[i] > buf[j]) {
+                        int t = buf[i];
+                        buf[i] = buf[j];
+                        buf[j] = t;
+                    }
+        }
+
+        public void printM() {
+            double m;
+            int k = count / 2; //получаем индекс среднего элемента буфера
+            if (count % 2 == 0) //если количество элементов в буфере чётно, то
+                m = (buf[k] + buf[k - 1]) / 2.0; //медиану вычисляем как среднее суммы двух средних элементов буфера
+            else //если количество элементов в буфере нечётно, то
+                m = buf[k]; //за медиану принимаем средний элемент буфера
+            System.out.printf("[%.1f]", m);
+        }
+    }
+
+    public static void main(String[] args) {
+
+        BUF F = new BUF(); //создаём буфер
+
+        Random rnd = new Random(System.currentTimeMillis()); //инициализируем генератор случайных чисел
+
+        for (int i = 0; i < 100; i++) {
+
+            int x = rnd.nextInt(10); //получаем случайное число в диапазоне от 0 до 9 (включительно)
+
+            F.fifo(x); //вызываем метод добавления элемента в буфер
+
+            F.print(); //вызываем метод вывода буфера
+
+            sBUF tF = new sBUF(F); //создаём отсортированный буфер
+
+            tF.print(); //вызываем метод вывода отсортированного буфера
+
+            tF.printM();
+
+            System.out.println("");
+
+        }
+    }
+}
